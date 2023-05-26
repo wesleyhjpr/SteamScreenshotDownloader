@@ -166,9 +166,9 @@ namespace SteamDownloader
 
                     var download = await client.GetAsync( imageUrl );
 
-                    var cd = download.Content.Headers.GetValues( "Content-Disposition" ).First();
+                    var contentType = download.Content.Headers.ContentType.MediaType;
 
-                    var filename = Regex.Match( cd, "filename\\*?=(?:UTF-8'')?\"?(.+)" ).Groups[1].Value.Trim( ';', ' ', '"' );
+                    var filename = $"{file}-{GetImageExtension(contentType)}";
 
                     var data = await download.Content.ReadAsByteArrayAsync();
 
@@ -189,6 +189,20 @@ namespace SteamDownloader
 
                 return false;
             }
+        }
+
+        private static string GetImageExtension(string mimeType)
+        {
+            IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
+                { "image/x-jg", ".art" },
+                { "image/bmp", ".bmp" },
+                { "image/gif", ".gif" },
+                { "image/jpeg", ".jpeg" },
+                { "image/png", ".png" },
+                { "image/tiff", ".tiff" }
+            };
+
+            return _mappings[mimeType];
         }
     }
 }
